@@ -1,0 +1,7 @@
+reading: https://docs.pytorch.org/tutorials/beginner/pytorch_with_examples.html
+
+Q1. Explain the concept of a tensor, and the differences in PyTorch between a generic tensor, a parameter, and a gradient.
+
+
+
+As far as I understand it, in math, a tensor is a generalization of scalars, vectors and matricies to n dimensions. In pytorch, the generic tensor seems to be an n dimensional array that can hold numerical values which can be operated on downstream. A parameter is just a special tensor that holds a learnable parameter which pytorch knows should be optimized during training when it is assigned as an attribute of a Module and has a default of requires_grad=True (vs the generic tensor's required_grad=False). The gradient is another special type of tensor stored in the .grad attribute of the parameter tensor but which holds the partial derivative of the loss function with repect to that tensor. 
