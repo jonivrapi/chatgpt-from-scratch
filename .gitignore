@@ -1,3 +1,4 @@
 **/.hf_cache/
 *.pt
 */data
+*/__pycache__/
