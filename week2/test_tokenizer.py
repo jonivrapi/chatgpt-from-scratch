@@ -4,7 +4,7 @@ from collections import Counter
 from saving import save_vocab, save_merges
 
 # import your functions (adjust if your file/module name differs)
-from tokenizer_trainer import train_tokenizer, _words_from_text
+from tokenizer_trainer import train_tokenizer
 
 BASE = "abcdefghijklmnopqrstuvwxyz" \
        "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
