@@ -1,0 +1,7 @@
+watch these videos: 
+- https://www.youtube.com/watch?v=MijmeoH9LT4
+- https://www.youtube.com/watch?v=HEikzVL-lZU
+
+Q1. Explain how a byte-level BPE, in contrast with the character-level BPE implemented for homework, is able to tokenize a character it has never seen before (i.e. an emoji).
+
+A BPE works directly on bytes, as opposed to characters. This means that any symbol, including unseen ones like emojis, can be represented as a sequence of bytes. These sequences of bytes have been learned by the tokenizer irrespective of the specific characters they represent, which allows the byte-level BPE to effectively tokenize any character, even ones it hasnt seen before. Now, does this mean the model that uses this tokenizer can understand the meaning of the emoji as it was intended? Most likely not, but at least the model wont break. 
