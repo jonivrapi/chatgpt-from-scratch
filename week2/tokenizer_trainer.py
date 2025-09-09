@@ -40,8 +40,6 @@ def _words_from_text_file(text_file_path):
     return [tuple([" "] + list(word)) for word in words_list]
 
 def _deduplicate_preserving_order(sequence):
-    # dict.fromkeys keeps the first occurrence of each item
-    # python dicts preserve insertion order
     return list(dict.fromkeys(sequence))
 
 def _count_adjacent_pairs(word_count_map):
@@ -57,7 +55,7 @@ def _count_adjacent_pairs(word_count_map):
     return adjacent_pair_counts
 
 def _apply_merge_to_symbol_sequence(symbol_sequence, left_symbol, right_symbol, merged_token):
-    # Single pass, left-to-right merge of (left_symbol, right_symbol) -> merged_token
+    # Single pass, left-to-right merge of (left_symbol, right_symbol) to merged_token
     output_sequence = []
     index = 0
     length_of_sequence = len(symbol_sequence)
@@ -76,7 +74,7 @@ def _apply_merge_to_symbol_sequence(symbol_sequence, left_symbol, right_symbol, 
     return tuple(output_sequence)
 
 def _merge_across_corpus(word_count_map, left_symbol, right_symbol):
-    # Apply merge to every distinct word sequence; re-aggregate counts
+    # Apply merge to every distinct word sequence then re-aggregate counts
     merged_token = left_symbol + right_symbol
     new_word_count_map = Counter()
     for symbol_sequence, count in word_count_map.items():
@@ -96,15 +94,15 @@ def train_tokenizer(text_file_path, target_vocabulary_size, base_vocabulary):
     ./vocab.txt : a list of the final vocabulary in order, one entry per line, ties broken alphabetically
     ./merges.json : a list of tuples of merges, in order
     '''
-    # 1) Prepare corpus: words with leading " " symbol, and their counts
+    # Prepare corpus words with leading " " symbol and their counts
     word_symbol_sequences = _words_from_text_file(text_file_path)
     word_count_map = Counter(word_symbol_sequences)
 
-    # 2) Initialize vocabulary (deduplicate, keep order) and merges list
+    # Initialize vocabulary (deduplicate while keeping order)
     vocabulary_list = _deduplicate_preserving_order(base_vocabulary)
     merge_operations = []
 
-    # 3) BPE loop
+    # The BPE loop
     while len(vocabulary_list) < target_vocabulary_size:
         adjacent_pair_counts = _count_adjacent_pairs(word_count_map)
 
@@ -112,14 +110,14 @@ def train_tokenizer(text_file_path, target_vocabulary_size, base_vocabulary):
         if nothing_left_to_merge:
             break
 
-        # Find max count; break ties lexicographically on the (left_symbol, right_symbol) pair
+        # Find max count and break ties lexicographically on the (left_symbol, right_symbol) pair
         maximum_count = max(adjacent_pair_counts.values())
         tied_candidates = [
             pair for pair, count in adjacent_pair_counts.items() if count == maximum_count
         ]
-        best_left_symbol, best_right_symbol = min(tied_candidates)  # Python tuple compare is lexicographic
+        best_left_symbol, best_right_symbol = min(tied_candidates)
 
-        # Apply merge
+        # Apply the merge
         word_count_map, new_token = _merge_across_corpus(
             word_count_map, best_left_symbol, best_right_symbol
         )
