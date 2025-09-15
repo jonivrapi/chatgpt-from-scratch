@@ -47,6 +47,7 @@ def _apply_merge_to_token_list(tokens, left_symbol, right_symbol):
             i += 1
     return output
 
+
 class Tokenizer:
     def __init__(self, vocab_file: str, merges_file: str):
         # Load vocabulary (id is the line number)
