@@ -27,19 +27,36 @@ For example, if your merges contain: ("m","o"), ("s","e"), ("u","s"), then
 
 '''
 
-import json
+# Took this from my PA2
+def _apply_merge_to_token_list(tokens, left_symbol, right_symbol):
+    output = []
+    i = 0
+    n = len(tokens)
+    while i < n:
+        has_next = i < n - 1
+        is_merge_site = (
+            has_next
+            and tokens[i] == left_symbol
+            and tokens[i + 1] == right_symbol
+        )
+        if is_merge_site:
+            output.append(left_symbol + right_symbol)
+            i += 2
+        else:
+            output.append(tokens[i])
+            i += 1
+    return output
 
 class Tokenizer:
     def __init__(self, vocab_file: str, merges_file: str):
-        # Load vocabulary
+        # Load vocabulary (id is the line number)
         with open(vocab_file, "r", encoding="utf-8") as f:
             self.id_to_token = [line.rstrip("\n") for line in f]
         self.token_to_id = {t: i for i, t in enumerate(self.id_to_token)}
 
-        # Load merges
+        # Load merges and give each pair a rank (earlier = higher priority)
         with open(merges_file, "r", encoding="utf-8") as f:
             merges = json.load(f)
-        # Give each pair a rank where earlier = higher priority
         self.rank = {(a, b): i for i, (a, b) in enumerate(merges)}
 
     def encode(self, text: str):
@@ -49,7 +66,7 @@ class Tokenizer:
         while True:
             pairs = [(tokens[i], tokens[i + 1]) for i in range(len(tokens) - 1)]
 
-            best = None
+            best_pair = None
             best_rank = None
             for p in pairs:
                 rank = self.rank.get(p)
@@ -57,29 +74,14 @@ class Tokenizer:
                 if rank_exists:
                     rank_is_better = (best_rank is None) or (rank < best_rank)
                     if rank_is_better:
-                        best, best_rank = p, rank
+                        best_pair, best_rank = p, rank
 
-            no_more_merges = best is None
+            no_more_merges = best_pair is None
             if no_more_merges:
                 break
 
-            # Merge all occurrences of the best pair, left-to-right
-            merged = []
-            i = 0
-            n = len(tokens)
-            while i < n:
-                has_next = i < n - 1
-                next_pair = (tokens[i], tokens[i + 1]) if has_next else None
-                next_pair_is_best = has_next and (next_pair == best)
-
-                if next_pair_is_best:
-                    merged.append(tokens[i] + tokens[i + 1])
-                    i += 2
-                else:
-                    merged.append(tokens[i])
-                    i += 1
-
-            tokens = merged
+            left_symbol, right_symbol = best_pair
+            tokens = _apply_merge_to_token_list(tokens, left_symbol, right_symbol)
 
         # Map final tokens to ids
         ids = []
@@ -89,7 +91,6 @@ class Tokenizer:
 
     def decode(self, ids):
         return "".join(self.id_to_token[i] for i in ids)
-
 
 
 if __name__ == "__main__":
