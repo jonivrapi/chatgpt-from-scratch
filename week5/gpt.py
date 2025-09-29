@@ -90,9 +90,10 @@ class GPTModel(torch.nn.Module):
         '''
         batch_size, seq_len = x.shape
         if seq_len > self.max_seq_len:
-            raise ValueError("sequence length exceeds maximum supported length")
+            raise ValueError("seq_len cannot be larger than max_seq_len")
 
-        positions = torch.arange(seq_len, device=x.device)[None, :].expand(batch_size, seq_len)
+        position_ids = torch.arange(seq_len, device=x.device).unsqueeze(0)
+        positions = position_ids.expand(batch_size, seq_len)
         h = self.token_embedding(x) + self.position_embedding(positions)
 
         for layer in self.layers:
