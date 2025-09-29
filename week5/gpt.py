@@ -78,7 +78,7 @@ class GPTModel(torch.nn.Module):
         self.layers = torch.nn.ModuleList(
             [TransformerDecoderBlock(d_model, n_heads) for _ in range(layers)]
         )
-        self.output_projection = CustomLinear(d_model, vocab_size)
+        self.out = CustomLinear(d_model, vocab_size)
 
     
     def forward(self, x):
@@ -99,7 +99,7 @@ class GPTModel(torch.nn.Module):
         for layer in self.layers:
             h = layer(h)
 
-        logits = self.output_projection(h)
+        logits = self.out(h)
         return logits
 
 
