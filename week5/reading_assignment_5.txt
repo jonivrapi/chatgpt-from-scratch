@@ -1,0 +1,7 @@
+read: https://peterbloem.nl/blog/transformers
+
+Q1. What are the main differences between “modern” transformers and the original encoder/decoder transformer (“historical baggage” as Bloem calls it)? Why has the model architecture changed?
+
+The main difference between modern transformers and the original encoder-decoder transformer is basically that modern transformers have simplified the architecture by focusing on either encoder-only or decoder-only architectures as opposed to the original encoder-decoder transformer with cross-attention. It turned out that these were sufficient for most tasks and that much of the original transformer's techniques, like teacher forcing and cross attention were unnecessary, and computationally expensive, hangovers from RNNs and other sequence models in the bygone era of...like 10yrs ago. Over time, model architectures have simplified to be more efficient and scalable, allowing for much larger models and contexts.
+
+Modern transformers typically use a single stack of encoder or decoder layers with self-attention and FFNs, with causal masking as needed. Basically self-attention -> feed forward -> norm/residual in uniform repeated blocks. This, it turns out, is much easier to optimize and scale as well, and I think has surprised everyone with how well it works across a wide range of tasks.
