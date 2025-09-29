@@ -21,7 +21,13 @@ class TransformerDecoderBlock(torch.nn.Module):
 
     def __init__(self, d_model, n_heads):
         super().__init__()
-        # TODO
+        self.norm1 = torch.nn.LayerNorm((d_model,))
+        self.norm2 = torch.nn.LayerNorm((d_model,))
+        self.mha = CustomMHA(d_model, n_heads)
+        self.linear1 = CustomLinear(d_model, 4 * d_model)
+        self.linear2 = CustomLinear(4 * d_model, d_model)
+        self.dropout = torch.nn.Dropout(p=0.1)
+        self.activation = torch.nn.ReLU()
 
     
     def forward(self, x):
@@ -29,7 +35,20 @@ class TransformerDecoderBlock(torch.nn.Module):
         param x : (tensor) a tensor of size (batch_size, sequence_length, d_model)
         returns the computed output of the block with the same size.
         '''
-        # TODO
+        residual = x
+        h = self.norm1(x)
+        h = self.mha(h)
+        x = residual + h
+
+        residual = x
+        h = self.norm2(x)
+        h = self.linear1(h)
+        h = self.activation(h)
+        h = self.linear2(h)
+        h = self.dropout(h)
+        x = residual + h
+
+        return x
 
 
 '''
@@ -52,8 +71,14 @@ class GPTModel(torch.nn.Module):
         '''
 
         super().__init__()
-        # TODO
-        # hint: for a stack of N layers look at torch ModuleList or torch Sequential
+        self.d_model = d_model
+        self.max_seq_len = max_seq_len
+        self.token_embedding = CustomEmbedding(vocab_size, d_model)
+        self.position_embedding = CustomEmbedding(max_seq_len, d_model)
+        self.layers = torch.nn.ModuleList(
+            [TransformerDecoderBlock(d_model, n_heads) for _ in range(layers)]
+        )
+        self.output_projection = CustomLinear(d_model, vocab_size)
 
     
     def forward(self, x):
@@ -63,8 +88,18 @@ class GPTModel(torch.nn.Module):
 
         returns a tensor of size (batch_size, sequence_length, vocab_size), the raw logits for the output
         '''
-        # TODO
-        # hint: x contains token ids, but you will also need to build a tensor of position ids here
+        batch_size, seq_len = x.shape
+        if seq_len > self.max_seq_len:
+            raise ValueError("sequence length exceeds maximum supported length")
+
+        positions = torch.arange(seq_len, device=x.device)[None, :].expand(batch_size, seq_len)
+        h = self.token_embedding(x) + self.position_embedding(positions)
+
+        for layer in self.layers:
+            h = layer(h)
+
+        logits = self.output_projection(h)
+        return logits
 
 
 
