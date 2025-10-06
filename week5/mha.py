@@ -48,12 +48,12 @@ class CustomMHA(torch.nn.Module):
 
 		# --------------------------------------
 		# make causal attention mask
-		# TODO
+		mask = torch.triu(torch.ones((S, S), device=qkt.device, dtype=torch.bool), diagonal=1)
 		# --------------------------------------
 
 		# --------------------------------------
 		# apply causal mask
-		# TODO
+		qkt = qkt.masked_fill(mask, float('-inf'))
 		# Note: Make sure to fill with -inf, not 0
 		# --------------------------------------
 
