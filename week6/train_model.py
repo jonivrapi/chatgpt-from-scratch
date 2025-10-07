@@ -41,6 +41,8 @@ def train():
     print("Training on device:", device)
 
     # adjust as needed
+    # here i used the same properties you had in your example
+    # except with a larger vocab to fit the tokenizer we trained
     model = GPTModel(d_model=128, n_heads=8, layers=4, vocab_size=10000, max_seq_len=512)
     param_count = sum(p.numel() for p in model.parameters())
     print("Model has", param_count, "parameters.")
