@@ -35,6 +35,24 @@ def construct_dataset(data_txt_file, sequence_length=256):
     # - pack into sequences of length sequence_length
     # - shuffle
     # - save out data
+    eos_id = tokenizer.tokenizer.eos_token_id
+    token_stream = []
+    for sample in samples:
+        token_ids = tokenizer.encode(sample)
+        token_ids.append(eos_id)
+        token_stream.extend(token_ids)
+
+    token_stream = np.array(token_stream, dtype=np.int64)
+
+    seq_len_with_target = sequence_length + 1
+    usable_tokens = (token_stream.shape[0] // seq_len_with_target) * seq_len_with_target
+    token_stream = token_stream[:usable_tokens]
+    sequences = token_stream.reshape(-1, seq_len_with_target)
+
+    rng = np.random.default_rng()
+    rng.shuffle(sequences)
+
+    np.save("dataset.npy", sequences)
 
 
 if __name__ == "__main__":

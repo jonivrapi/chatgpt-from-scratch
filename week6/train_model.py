@@ -37,14 +37,16 @@ Use a few hundred warmup steps and a peak learning rate that is (something x 10-
 '''
 def train():
 
-    device = torch.device("cuda") # use "cpu" if not gpu available
+    device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+    print("Training on device:", device)
 
     # adjust as needed
-    model = GPTModel(d_model=512, n_heads=16, layers=8, vocab_size=10000, max_seq_len=256)
+    model = GPTModel(d_model=128, n_heads=8, layers=4, vocab_size=10000, max_seq_len=512)
     param_count = sum(p.numel() for p in model.parameters())
     print("Model has", param_count, "parameters.")
 
     model = model.to(device)
+    model.train()
 
     '''
     # TODO
@@ -77,6 +79,75 @@ def train():
         # periodically save a plot of loss vs tokens      
         
     '''
+    sequences = np.load("dataset.npy", allow_pickle=False)
+
+    inputs = torch.from_numpy(sequences[:, :-1]).long()
+    targets = torch.from_numpy(sequences[:, 1:]).long()
+    dataset = torch.utils.data.TensorDataset(inputs, targets)
+
+    batch_size = 256
+    data_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+
+    total_steps = len(data_loader)
+    epochs = 3
+    total_steps *= epochs
+    warmup_steps = min(500, max(1, total_steps // 10))
+
+    opt = torch.optim.AdamW(model.parameters(), lr=5e-4, betas=(0.9, 0.95))
+    scheduler = cosine_with_warmup_lr_scheduler(opt, total_steps=total_steps, warmup_steps=warmup_steps)
+    criterion = torch.nn.CrossEntropyLoss()
+
+    global_step = 0
+    tokens_seen = 0
+    token_history = []
+    loss_history = []
+
+    plt.ion()
+    fig, ax = plt.subplots(figsize=(8, 4))
+    (line,) = ax.plot([], [])
+    ax.set_xlabel("Tokens Seen")
+    ax.set_ylabel("Loss")
+    ax.set_title("Training Loss Curve (live)")
+    fig.tight_layout()
+
+    torch.autograd.set_detect_anomaly(True)
+
+    for epoch in range(epochs):
+        for batch_inputs, batch_targets in data_loader:
+            batch_inputs = batch_inputs.to(device)
+            batch_targets = batch_targets.to(device)
+
+            opt.zero_grad()
+
+            logits = model(batch_inputs)
+            logits = logits.transpose(1, 2)
+
+            loss = criterion(logits, batch_targets)
+
+            loss.backward()
+
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+
+            opt.step()
+            scheduler.step()
+
+            tokens_seen += batch_targets.numel()
+            global_step += 1
+
+            token_history.append(tokens_seen)
+            loss_history.append(loss.item())
+
+            if global_step % 100 == 0 or global_step == total_steps:
+                print(f"step {global_step}/{total_steps} | tokens {tokens_seen} | loss {loss.item():.4f}")
+                line.set_data(token_history, loss_history)
+                ax.relim()
+                ax.autoscale_view()
+                fig.canvas.draw()
+                fig.canvas.flush_events()
+
+    plt.ioff()
+    fig.savefig("training_loss.png")
+    plt.close(fig)
 
     # save model weights if you want
     torch.save(model.state_dict(), "./model_weights.pt")
