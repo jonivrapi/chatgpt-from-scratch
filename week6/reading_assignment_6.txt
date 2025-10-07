@@ -1,0 +1,9 @@
+read: 
+-https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf
+-https://arxiv.org/pdf/1910.10683
+
+Q1. GPT2 and T5 introduced similar ideas in the beginning of 2019. The key idea is stated in the GPT2 paper: "the supervised objective is the same as the unsupervised objective, but only evaluated on a subset of the sequence". Explain what this means in your own words.
+
+So im not sure that I understood this fully, but as far as i understand it, training happens in an unsupervisied fashion because we are feeding a sequence of tokens into the model and asking it to predict the next token, whereas in a supervised task we would have labeled data and a corresponding objective function that tests the models performance on that labeled data. In translation, for example, we might have an input sentence in english and an output sentence in spanish, and the model would be trained with a "translation loss" function which measures how well that translation occured. In other words, the "way" that it learns is different. 
+
+In the unsupervised approach, however, the model simply learns to predict the next token in a sequence, and this same mechanism can be applied to a variety of language tasks (like translation) by formatting the input data in a sequential fashion. In this way, the model is learning in the same "way" regardless of the task, which allows the same model to learn many many tasks. In reference to his comment on the subset of a sequence, i think that has to do with the fact that in a supervised task, we might only care about a specific part of the sequence (like the output sentence in a translation task), whereas in the unsupervised task, we are predicting every token in the sequence.
