@@ -1,0 +1,9 @@
+read: https://arxiv.org/pdf/2004.05150
+
+Q1. Why does the memory complexity of a transformer expand quadratically when the input sequence only expands linearly? How does this limit our ability to build larger and larger models?
+
+In a normal transformer the self-attention mechanism computes attention scores between every pair of tokens in the sequence. This produces an n x n attention matrix for a sequuence of length n. That means memory and compute scale quadratically as each token forms q/k/v vectors and attends to all other tokens, so the cost grows as O(n^2) vs O(n). This rapidly exhausts GPU memory and makes training and inference basically impractical on long input sequences if one were to simply scale sequence length. 
+
+Q2. How does the Longformer try to improve on this complexity?
+
+Longformer replaces full self-attention with sliding window attention so each token only attends to a fixed number (w) tokens before/after it (which is O(n x w) complexity). It also adds optional "dilated windows" to expand the receptive field without any extra compute cost. For global interactions, it adds a small number of "global" attention tokens which are constant with respect to n. This keeps the overall complexity at O(n). Stacking layers in this model (unlike in the first question) actually improves performance instead of immediately exploding memory, giving you long range context thats actually servable. 
