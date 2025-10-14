@@ -78,6 +78,22 @@ class Sampler:
 			It should be returned back to token-id order (unsorted order) before returning.
 		'''
 
+		# very rough outline:
+		# make temperature=1.0 for each vocabulary option
+		# adjust temps as needed with penalties
+		# logits = logits - np.min(logits) to make sure all are positive
+		# apply temps & softmax
+		# sort the distribution (and track the sort order so you can undo it later)
+		# find either the top-p or top-k cutoff
+		# renormalize this portion by simply dividing by the sum
+		# revert back to original ordering of the distribution
+			# helpful tip for this: 
+			# indices = np.argsort(arr)
+			# undo_indices = np.argsort(indices) # take argsort of the argsort
+			# sorted_array = arr[indices]
+			# put_back = sorted_array[undo_indices]
+		# return distribution
+
 		logits = np.asarray(raw_unsorted_logits, dtype=np.float64)
 		if logits.ndim != 1:
 			raise ValueError("raw_unsorted_logits must be a 1D array.")
@@ -133,22 +149,6 @@ class Sampler:
 
 		return final_distribution
 
-		# very rough outline:
-		# make temperature=1.0 for each vocabulary option
-		# adjust temps as needed with penalties
-		# logits = logits - np.min(logits) to make sure all are positive
-		# apply temps & softmax
-		# sort the distribution (and track the sort order so you can undo it later)
-		# find either the top-p or top-k cutoff
-		# renormalize this portion by simply dividing by the sum
-		# revert back to original ordering of the distribution
-			# helpful tip for this: 
-			# indices = np.argsort(arr)
-			# undo_indices = np.argsort(indices) # take argsort of the argsort
-			# sorted_array = arr[indices]
-			# put_back = sorted_array[undo_indices]
-		# return distribution
-
 
 
 	#==========================
@@ -165,7 +165,7 @@ class Sampler:
 
 
 if __name__ == "__main__":
-    
+
     # example of using this with dummy data, keeping everything in token ids
 
     sampler = Sampler(top_p=0.8, frequency_penalty=1.1, presence_penalty=1.1)
@@ -173,11 +173,11 @@ if __name__ == "__main__":
     sequence = [1,2,3,4,5]
 
     for i in range(10):
-    	# fake logits for a vocab of size 500
-    	logits = np.random.randn(500)
+        # fake logits for a vocab of size 500
+        logits = np.random.randn(500)
 
-    	# get next token in sequence
-    	next_token = sampler(logits, sequence)
-    	sequence.append(next_token)
+        # get next token in sequence
+        next_token = sampler(logits, sequence)
+        sequence.append(next_token)
 
     print(sequence)
