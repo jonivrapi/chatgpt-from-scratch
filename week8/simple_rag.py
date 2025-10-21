@@ -8,7 +8,6 @@ from itertools import islice
 
 from datasets import load_dataset
 import torch
-import torch.nn.functional as F
 from openai import OpenAI
 from transformers import AutoTokenizer, AutoModel
 
@@ -88,7 +87,7 @@ class SimpleRAGNews():
         tokens = {key: value.to(self.model.device) for key, value in tokens.items()}
         with torch.no_grad():
             embedding = self.model(**tokens)[0][:, 0]
-            embedding = F.normalize(embedding, dim=1)
+            embedding = torch.nn.functional.normalize(embedding, dim=1)
         return embedding.squeeze(0)
 
 
@@ -101,7 +100,7 @@ class SimpleRAGNews():
 
         query_embedding = self.embed(user_query)
         query_embedding = query_embedding.unsqueeze(0).expand_as(self.article_embeddings)
-        similarities = F.cosine_similarity(self.article_embeddings, query_embedding, dim=1)
+        similarities = torch.nn.functional.cosine_similarity(self.article_embeddings, query_embedding, dim=1)
         best_match_index = torch.argmax(similarities).item()
         return self.articles[best_match_index]
 
