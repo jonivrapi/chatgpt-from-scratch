@@ -1,0 +1,10 @@
+read: https://arxiv.org/pdf/2406.17557
+
+Q1. In section 3.4, the authors explain some results that "challenged their initial assumption" about dedupilcation. Explain these findings in your own words. What was their assumption and how was it incorrect?
+
+They assumed that one big fuzzy dedupe across all of the common crawl snapshots would clean the data and automatically boost scores. Instead, it apparently basically didnt help, and even hurt them. Iteratively deduping from newest to oldest actually hurt them basically because the internet has gotten more "slop-ified" over time, and the resultant dataset contained more of this slop-ified content. Switching to the per-snapshot dedupe fixed this, going against their original "global is always better" assumption.
+
+
+Q2. In section 3.6, the authors describe custom data filters which led to a 1% increase in specific benchmarks. In your opinion, is this type of experiment worthwhile or are the authors simply overfitting to their selected benchmarks? Please explain.
+
+They designed 3 simple filters: low terminal-punctuation lines, duplicated-line characters, and very short lines. Together, these cut 22% of tokens and move the aggregate benchmark up about 1%. Personally, I think thats worth it. At pretraining scale, a 1% boost from cheaper heuristics I think is good signal. Could there be overfitting? Yes, I suppose their could be, but I also think introducing any sort of fixed bench like this increases that risk just through the very nature of researchers now optimizing for it. Overall though, I think the overfitting risk here was minor relative to the very real 1% gain
