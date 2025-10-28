@@ -1,0 +1,26 @@
+Project Idea
+
+For this project, I plan to implement what we discussed over chat from the Veritasium video on small world graphs -- a simplified GPT-style transformer that replaces the standard feed-forward layers in each transformer block with a small-world graph network. In the standard GPT-2 architecture, each token is processed by an identical position-wise MLP that mixes information across feature dimensions. My idea is to make this feature-mixing operation sparse and structured, using a small-world topology inspired by the Watts–Strogatz model. This means that instead of every neuron being connected to every other, each unit will connect primarily to nearby ones with a few random long-range connections—mirroring how small-world graphs can capture both local clustering and short global paths.
+
+
+
+How It Differs from the Homework GPT
+
+The transformer from previous homework assignments used dense linear layers for its feed-forward blocks. My modified model will instead use a graph-structured, sparse connection pattern within these layers. This substitution keeps the general transformer framework (self-attention, residuals, normalization) intact, but introduces a biologically inspired connectivity structure to the MLP component. I expect this to change the model’s inductive bias: potentially improving efficiency, regularization, or representation diversity, though it may also reduce expressiveness depending on sparsity levels. This idea is interesting because it connects neural network architecture to graph-theoretic properties found in real-world networks, such as social or biological systems.
+
+
+
+Experiments and Metrics
+
+I plan to compare my small-world FFN transformer against 1-2 baselines:
+
+1. A standard GPT-style transformer with dense MLPs (as the control).
+2. A transformer with randomly sparse MLPs (to separate the effect of structured vs. unstructured sparsity, if I have enough time).
+
+The key metrics will be validation perplexity (for language modeling performance), parameter count, and training stability (e.g., convergence speed, loss curves). I may also analyze how performance varies with small-world parameters (degree k and rewiring probability p), to see if there’s an optimal balance between locality and randomness.
+
+
+
+Datasets and Libraries
+
+I plan to use a small, publicly available text dataset such as Tiny Shakespeare or a subset of WikiText-2 for training and evaluation. The implementation will be in PyTorch, leveraging standard transformer components but customizing the feed-forward layers to support small-world connectivity. If I have enough time, I may visualize the learned weight graphs or compare activation patterns between dense and small-world models.
