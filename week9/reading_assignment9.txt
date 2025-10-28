@@ -1,0 +1,10 @@
+read: https://arxiv.org/abs/2203.15556
+read: https://www.alignmentforum.org/posts/6Fpvch8RR29qLEWNH/chinchilla-s-wild-implica%20tions
+
+Q1. What is a "scaling law", and how is it useful when designing LLMs?
+
+A scaling law is a mathematical relationship that predicts how model performance depends on quantities like model size, data size, and compute. Knowing this "law" is useful because, for example, when you have a fixed compute budget you can use it to decide what trade off is best to make. Do you want to add more params, or do you want to add more data? It therefore helps in designing models more efficiently by avoiding wasting compute on scaling in the less-good dimension.
+
+Q2. What is the key insight from Chinchilla's scaling laws compared to previous work?
+
+The key insight from the chinchilla paper is that for current language modeling regimes the main bottleneck is data size rather than model size. This means that many large models are unnecessarilly large given the amount of data they were trained on. In practice, the chinchilla paper showed that a smaller model trained on more data outperformed a larger model trained on less data (for the same amount of compute).
