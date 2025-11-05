@@ -1,0 +1,23 @@
+read: https://crfm.stanford.edu/2023/03/13/alpaca.html
+
+Q1. An interesting aspect of Alpaca is that it was fine-tuned on synthetic data. What are some of the possible benefits and shortcomings of this approach?
+
+I think the benefits of fine-tuning on synthetic data are the same as the benefits of fine-tuning any base model for some other more specialized task. You get, very cheaply, a model that is far better at whatever task it is you are fine-tuning for than it would otherwise have been being trained from scratch with the (likely very limited) data you had. The main issue with synthetic data generation, in my opinion, is the difficulty in generating data that accurately models the domain of the space you are fine tuning on. This is partially because its very difficult to get one of these LLMs to generate very diverse synthetic data at high quality in large numbers. This is evident in simply asking one of them to tell you a joke via a bunch of new chats -- they only have a handful of jokes, all of which are worded slightly differently. This isnt to say they only know a few jokes; if you prompt them carefully, you can get every joke ever written by mankind out of them -- and even many that are unique -- but it is very difficult to curate that. In other words, when you try and generate synthetic data, you have to be very careful to ensure you generate a very broad, diverse, and high quality dataset.
+
+
+Q2. From an ethical standpoint, is training/tuning on the outputs of another model (that is not your work) a valid approach to building a new model? There is not a correct answer here just looking for your own opinion
+
+Philosophically:
+
+You know, I go back and forth on this a bit. On the one hand, I think that if you put something online then you should have no expectation of privacy in the same way I think you should have no expectation of privacy if you're having a conversation while standing in the middle of the street. On the other hand, I think that if you were having a conversation in the middle of the street you do have the expectation that someone doesn't just walk up to you and butt into your conversation. That is -- there are norms to be observed, one of which is "if someone asks you not to do something, don't do it" (implicitly in my example). 
+
+
+"Scientifically":
+
+I think people should agressively do this to accelerate the rate at which science progresses. I think if every bit of knowledge that was discovered was open and free for everyone to access, science would progress far faster than it is today. Patents, IP, etc. all serve to slow the rate of progress down.
+
+
+---
+
+
+All this to say that where I ultimately land on this, I think, is that it is ethical, and maybe even encouraged, if that is what was intended.
